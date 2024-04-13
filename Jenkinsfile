@@ -1,76 +1,70 @@
+// Jenkinsfile (Declarative Pipeline)
+// Global Variable goes here
+// Pipeline block
 pipeline {
-    agent any
-    parameters {
-        string(name: "TEST_STRING", defaultValue: "SONARQ syntax testing", description: "Sample string parameter")
-    }
-
-    stages {
-        stage ('GIT event') {
-            steps {
-                echo 'pull code from git'
-            }
-        }        
-        stage ('prebuild tests') {
-            steps {
-                echo 'Test type: syntax'
-                echo "${params.TEST_STRING}"
-            }
-        }
-        stage ('build') {
-            steps {
-                echo 'Building with Gradle'
-                //sh "gradle build ./.."
-            }
-        }
-        stage ('post build tests') {
-            steps {
-                echo 'Testing with Gradle'
-                //sh "gradle test ./.."
-            }
-        }        
-        stage ('push to artifactory') {
-            steps {
-                echo 'JFrog publish'
-            }
-        }
-        stage ('deployment') {
-            steps {
-                echo 'deploy to NGINXWebServer'
-            }
-        }           
-        stage ('post deployment tests') {
-        parallel {
-                    stage('Integration tests'){
-            steps {
-                echo 'integration testing'
-            }            
-            }
-                    stage('Smoke testing'){
-            steps {
-                echo 'smoke testing'
-            }            
-            }
-                    stage('Load testing'){
-            steps {
-                echo 'load tests'
-        }
-        }      
-        }    
-    }
+// Agent block
+agent {
+   node any
 }
+options {
+}
+parameters {
+   string(name: "Branch_Name", defaultValue: 'main', description: 'the Git branch, contains the jenkinsfile code')
+   string(name: "Image_Name", defaultValue: 'tms_calc', description: 'the name of the Docker image to be build')
+   string(name: "Image_Tag", defaultValue: 'latest', description: 'Docker image tag')
+   
+   booleanParam(name: "PushImage", defaultValue: true)
+}
+// Stage Block
+stages {// stage blocks
+   stage("Build docker images") {
+      steps {
+        echo "Bulding docker images"
+        dir(path: './Source') {
+          sh 'ls -l'
+          sh "docker build -t ${params.Image_Name}:${params.Image_Tag} . "
+        }
+     }
+}
+stage("Push to Dockerhub") {
+   when {
+      equals expected: "true", actual: "${params.PushImage}"
+   }
+   steps {
+      script {
+         echo "Pushing the image to docker hub"
+         def localImage = "${params.Image_Name}:${params.Image_Tag}"
+         def repositoryName = "alexeyparfimovich/${localImage}"
+         echo "Image name: ${repositoryName}"
 
+         def output = sh(script: "docker tag ${localImage} ${repositoryName} ", returnStdout: true)
+         echo "Output: ${output}"
+
+         def status = sh(returnStatus: true, script: "docker push ${repositoryName} ")
+         if (status != 0) {
+            echo "Error: Command exited with status ${status}"
+         } else {
+            echo "Command executed successfully"
+         }
+
+        }
+     }
+  }
+}}
 post {
-    always {
-        echo 'One way or another, I have finished'
-    }
-    success {
-        echo 'I succeeded!'
-    }
-    failure {
-        echo 'I failed :('
-    }
-    changed {
-        echo 'Things were different before...'
-    }
-}      
-}
+   always {
+      script {
+         echo "I am execute always"
+      }
+   }
+   success {
+      script {
+         echo "I am execute on success"
+      }
+   }
+   failure {
+      script {
+         echo "I am execute on failure"
+      }
+   }
+}}
