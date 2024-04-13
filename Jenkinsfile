@@ -54,8 +54,8 @@ pipeline {
                     def repositoryName = "alexeyparfimovich/${localImage}"
                     echo "Image name: ${repositoryName}"
 
-                    def output = sh(script: "docker tag ${localImage} ${repositoryName} ", returnStdout: true)
-                    echo "Output: ${output}"
+                    output = sh(script: "docker tag ${localImage} ${repositoryName} ", returnStdout: true)
+                    echo "Docker tag: ${output}"
 
                     def status = sh(returnStatus: true, script: "docker push ${repositoryName} ")
                     if (status != 0) {
