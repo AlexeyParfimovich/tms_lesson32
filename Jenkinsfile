@@ -11,6 +11,10 @@ pipeline {
 //    options {
 //    }
 
+    environment {
+        DOCKERHUB_CREDS = credentials('549bb496-266b-4f2f-baea-3a9f7abc3bce')
+    }
+
     parameters {
         string(name: "Branch_Name", defaultValue: 'main', description: 'the Git branch, contains the jenkinsfile code')
         string(name: "Image_Name", defaultValue: 'tms_calc', description: 'the name of the Docker image to be build')
@@ -60,7 +64,7 @@ pipeline {
 
                     sh "docker tag ${localImage} ${repositoryName} "
                     sh "docker push ${repositoryName} "
-                    
+
                     /*
                     def output = sh(script: "ls -l", returnStdout: true)
                     echo "ls: ${output}"
