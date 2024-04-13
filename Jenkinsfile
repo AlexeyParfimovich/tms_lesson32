@@ -27,6 +27,9 @@ pipeline {
                 echo "Bulding docker images"
                 dir(path: './Source') {
                     script {
+                        sh "ls -l"
+                        sh "docker build -t ${params.Image_Name}:${params.Image_Tag} . "
+                        /*
                         def output = sh(script: "ls -l", returnStdout: true)
                         echo "ls: ${output}"
 
@@ -36,6 +39,7 @@ pipeline {
                         } else {
                             echo "Docker build executed successfully"
                         } 
+                        */
                     }
                 }
             }
@@ -48,7 +52,16 @@ pipeline {
             steps {
                 script {
                     echo "Pushing the image to docker hub"
+                    sh "ls -l"
+
+                    def localImage = "${params.Image_Name}:${params.Image_Tag}"
+                    def repositoryName = "alexeyparfimovich/${localImage}"
+                    echo "Image name: ${repositoryName}"
+
+                    sh "docker tag ${localImage} ${repositoryName} "
+                    sh "docker push ${repositoryName} "
                     
+                    /*
                     def output = sh(script: "ls -l", returnStdout: true)
                     echo "ls: ${output}"
 
@@ -65,6 +78,7 @@ pipeline {
                     } else {
                         echo "Command executed successfully"
                     }
+                    */
                 }
             }
         }
