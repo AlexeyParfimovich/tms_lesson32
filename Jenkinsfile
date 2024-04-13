@@ -26,14 +26,16 @@ pipeline {
             steps {
                 echo "Bulding docker images"
                 dir(path: './Source') {
-                    def output = sh(script: "ls -l", returnStdout: true)
-                    echo "ls: ${output}"
+                    script {
+                        def output = sh(script: "ls -l", returnStdout: true)
+                        echo "ls: ${output}"
 
-                    def status = sh(script: "docker build -t ${params.Image_Name}:${params.Image_Tag} . ", returnStatus: true)
-                    if (status != 0) {
-                        echo "Error: Docker build failed with status ${status}"
-                    } else {
-                        echo "Docker build executed successfully"
+                        def status = sh(script: "docker build -t ${params.Image_Name}:${params.Image_Tag} . ", returnStatus: true)
+                        if (status != 0) {
+                            echo "Error: Docker build failed with status ${status}"
+                        } else {
+                            echo "Docker build executed successfully"
+                        } 
                     }
                 }
             }
