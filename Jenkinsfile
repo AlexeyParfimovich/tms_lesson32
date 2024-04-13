@@ -62,6 +62,7 @@ pipeline {
                     def repositoryName = "alexeyparfimovich/${localImage}"
                     echo "Image name: ${repositoryName}"
 
+                    sh "docker login -u ${LOGIN_CREDS_USR} -p ${LOGIN_CREDS_PSW} "
                     sh "docker tag ${localImage} ${repositoryName} "
                     sh "docker push ${repositoryName} "
 
