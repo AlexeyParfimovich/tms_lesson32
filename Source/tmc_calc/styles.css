@@ -1,0 +1,104 @@
+body {
+  margin: 0;
+  padding: 0;
+  background: #00AAFF;
+
+  box-sizing: border-box;
+  font-family: Gotham Rounded, sans-serif;
+  font-weight: normal;
+}
+
+[data-tooltip] { position: relative; }
+
+[data-tooltip]::after {
+  content: attr(data-tooltip); /* Set the text */
+
+  pointer-events: none;
+  position: absolute;
+  left: 7rem; top: 0;
+  width: 300px;
+
+  color: #fff;
+  font-size: 1rem;
+  background: #3989c9;
+  box-shadow: 2px 2px 5px rgba(0, 0, 0, 0.3);
+  
+  padding: 0.5em;
+  opacity: 0; /* The tooltip is unvisible */
+  transition: 1s; /* The time period to wait before show the tooltip */
+ } 
+
+ [data-tooltip]:hover::after {
+  opacity: 1; /* Make it visible */
+  top: 1em; /* Set tooltip position */
+ }
+
+ .header {
+   max-height: 10rem;
+ }
+
+ .main {
+   display: flex;
+   justify-content: flex-start;
+   align-items: top;
+ }
+
+ .aside {
+   min-width: 20rem;
+   max-width: 30rem;
+   margin: 0px 5rem 0px 5rem;
+ }
+
+ .calc-info {
+   text-align: justify;
+ }
+
+.calculator-grid {
+  margin-top: -2rem;
+
+  display: grid;
+  justify-content: center;
+  align-content: center;
+  min-height: 100vh;
+  grid-template-columns: repeat(5, 100px);
+  grid-template-rows: minmax(120px, auto) repeat(5, 100px);
+}
+
+.calculator-grid > button {
+  outline: none;
+  cursor: pointer;
+  font-size: 2rem;
+  border-radius: 5px;
+  border: 2px outset white;
+  background-color: rgba(255, 255, 255, .75);
+}
+
+.calculator-grid > button:hover { background-color: rgba(255, 255, 255, .9); }
+
+.span-two { grid-column: span 2; }
+
+.output {
+  grid-column: 1 / -1;
+
+  display: flex;
+  align-items: flex-end;
+  justify-content: space-around;
+  flex-direction: column;
+  word-wrap: break-word;
+  word-break: break-all;
+
+  padding: 10px;
+  border-radius: 5px;
+  border: 2px outset white;
+  background-color: rgba(0, 0, 0, .75);
+}
+
+.output .previous-operand {
+  color: rgba(255, 255, 255, .75);
+  font-size: 1.5rem;
+}
+
+.output .current-operand {
+  color: white;
+  font-size: 2.5rem;
+}

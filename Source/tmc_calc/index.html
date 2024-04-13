@@ -1,0 +1,73 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta http-equiv="X-UA-Compatible" content="ie=edge">
+  <title>Calculator</title>
+  <link href="styles.css" rel="stylesheet">
+  <script src="script.js" defer></script>
+</head>
+<body>
+  <main class="main">
+    <aside class="aside">
+      <h2>Пояснения к выполняемым операциям:</h2>
+      <p class="calc-info"><sup>n</sup>√x - операция для вычисления корня произвольной степени.<br>
+                            Cтепень задается после ввода числа и нажатия на кнопку выбора операции.
+                            Результат вычисляется после нажатия на кнопку '='.<br>
+                            <strong>Например: 25 √ 2 = 5</strong></p>
+      <p class="calc-info">x<sup>n</sup> - операция для возведения числа в произвольную степень.<br>
+                            Cтепень задается после ввода числа и нажатия на кнопку выбора операции.
+                            Результат вычисляется после нажатия на кнопку '='.<br>
+                            <strong>Например: 5 ^ 5 = 25</strong></p>
+      <p class="calc-info">lg<sub>n</sub> - операция для вычисления логарифма числа по произвольному основанию.<br>
+                            Основание логарифма задается после ввода числа и нажатия на кнопку выбора операции.
+                            Результат вычисляется после нажатия на кнопку '='.<br>
+                            <strong>Например: 9 log 3 = 2</strong></p>
+      <p class="calc-info">Операции  ÷ и 1/x всегда выполняются над текущим значением отображаемым в поле ввода на любой стадии вычислений.</p>
+                            
+      <h4 class="calc-info">Внимание! После получения результата вычисления, изменение результата или ввод нового числа заблокирован!<br>
+                            Вы можете или продолжить вычисления с полученным значением, или сбросить результат и начать новое вычисление.</h4>
+
+    </aside>
+    <div class="calculator-grid">
+      <div class="output">
+        <div data-previous-operand class="previous-operand"></div>
+        <div data-current-operand class="current-operand"></div>
+      </div>
+      <button data-all-clear class="span-two">AC</button>
+      <button data-delete>DEL</button>
+      <button data-duo-operation>÷</button>
+      <button data-duo-operation data-tooltip="Вычисление корня вводимой степени: нажмите на кнопку операции, введите степень корня и нажмите '='">
+        <sup>n</sup>√x
+      </button>
+      <button data-number>1</button>
+      <button data-number>2</button>
+      <button data-number>3</button>
+      <button data-duo-operation>*</button>
+      <button data-duo-operation data-tooltip="Вычисление степени числа по вводимому показателю: нажмите на кнопку операции, введите показатель степени и нажмите '='">
+        x<sup>n</sup>
+      </button>
+      <button data-number>4</button>
+      <button data-number>5</button>
+      <button data-number>6</button>
+      <button data-duo-operation>+</button>
+      <button data-duo-operation data-tooltip="Вычисление логарифма числа по вводимому основанию: нажмите на кнопку операции, введите основание логарифма и нажмите '='">
+        lg<sub>n</sub>
+      </button>
+      <button data-number>7</button>
+      <button data-number>8</button>
+      <button data-number>9</button>
+      <button data-duo-operation>-</button>
+      <button data-uno-operation data-tooltip="Вычисление числа, обратного введенному: введите число и нажмите на кнопку операции">
+        <sup>1</sup>/<sub>x</sub>
+      </button>
+      <button data-number>.</button>
+      <button data-number>0</button>
+      <button data-uno-operation>±</button>
+      <button data-equals class="span-two">=</button>
+    </div>
+  </main>
+
+</body>
+</html>
