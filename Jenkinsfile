@@ -3,9 +3,10 @@
 // Pipeline block
 pipeline {
     // Agent block
-    agent {
-    node any
-    }
+    agent any 
+//    {
+//        node any
+//    }
 
 //    options {
 //    }
