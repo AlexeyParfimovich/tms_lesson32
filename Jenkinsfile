@@ -16,7 +16,7 @@ pipeline {
         string(name: "Image_Name", defaultValue: 'tms_calc', description: 'the name of the Docker image to be build')
         string(name: "Image_Tag", defaultValue: 'latest', description: 'Docker image tag')
         
-        booleanParam(name: "PushImage", defaultValue: true)
+        booleanParam(name: "PushImage", defaultValue: false)
     }
 
     // Stage Block
@@ -26,13 +26,20 @@ pipeline {
             steps {
                 echo "Bulding docker images"
                 dir(path: './Source') {
-                    sh 'ls -l'
-                    sh "docker build -t ${params.Image_Name}:${params.Image_Tag} . "
+                    def output = sh(script: "ls -l", returnStdout: true)
+                    echo "ls: ${output}"
+
+                    def status = sh(script: "docker build -t ${params.Image_Name}:${params.Image_Tag} . ", returnStatus: true)
+                    if (status != 0) {
+                        echo "Error: Docker build failed with status ${status}"
+                    } else {
+                        echo "Docker build executed successfully"
+                    }
                 }
             }
         }
 
-        stage("Push to Dockerhub") {
+        stage("Push image to Dockerhub") {
             when {
                 equals expected: "true", actual: "${params.PushImage}"
             }
@@ -40,6 +47,9 @@ pipeline {
                 script {
                     echo "Pushing the image to docker hub"
                     
+                    def output = sh(script: "ls -l", returnStdout: true)
+                    echo "ls: ${output}"
+
                     def localImage = "${params.Image_Name}:${params.Image_Tag}"
                     def repositoryName = "alexeyparfimovich/${localImage}"
                     echo "Image name: ${repositoryName}"
