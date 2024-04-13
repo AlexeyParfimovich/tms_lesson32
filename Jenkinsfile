@@ -7,8 +7,8 @@ pipeline {
     node any
     }
 
-    options {
-    }
+//    options {
+//    }
 
     parameters {
         string(name: "Branch_Name", defaultValue: 'main', description: 'the Git branch, contains the jenkinsfile code')
@@ -70,7 +70,7 @@ post {
          echo "I am execute on success"
       }
    }
-   
+
    failure {
       script {
          echo "I am execute on failure"
