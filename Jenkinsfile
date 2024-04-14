@@ -115,8 +115,11 @@ pipeline {
 
                     sh "docker pull ${repositoryName} "
 
-                    sh 'docker stop container $(docker container ls -aq)'
-                    sh 'docker rm container $(docker container ls -aq)'
+                    sh """
+                        docker stop container \$(docker container ls -aq) && \
+                        docker rm container \$(docker container ls -aq)
+                    """
+                    //sh 'docker rm container $(docker container ls -aq)'
 
                     //sh "docker ps -aq | xargs docker stop "
                     sh "docker run -p 8081:80 -d --name ${params.Image_Name}_${params.Image_Tag} ${repositoryName} "
