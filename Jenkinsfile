@@ -13,7 +13,6 @@ node {
     }
 
     environment {
-        DOCKERHUB_REGISTRY = 
         DOCKERHUB_CREDS = credentials('549bb496-266b-4f2f-baea-3a9f7abc3bce')
     }
 
@@ -56,18 +55,7 @@ node {
             when {
                 equals expected: "true", actual: "${params.PushImage}"
             }
-            steps {
-                // sshagent(['ssh-hots-creds']) {
-                //     sh """
-                //         ssh -o StrictHostKeyChecking=no <user>@<stage-server> '''
-                //             aws ecr get-login-password --profile <ecr_user> --region us-east-1 | docker login --username AWS --password-stdin ${env.REGISTRY} && \
-                //             docker pull ${env.REGISTRY}:${env.BUILD_ID} && \
-                //             if [ \$(docker ps -qf "name=<your_docker_name>") ]; then docker stop \$(docker ps -qf "name=<your_docker_name>"); fi && \
-                //             docker run -d --name <your_docker_name>_${env.BUILD_ID} ${env.REGISTRY}:${env.BUILD_ID}
-                //         '''
-                //         """
-                // }
-                
+            steps {               
                 script {
                     echo "Pushing the image to docker hub"
                     sh "ls -l"
@@ -102,24 +90,34 @@ node {
             }
         }
 
-        stage("Deploy image from Dockerhub") {
-            when {
-                equals expected: "true", actual: "${params.DeployImage}"
-            }
-            steps {
-                script {
-                    echo "Deploing the image from docker hub"
+        // stage("Deploy image from Dockerhub") {
+        //     when {
+        //         equals expected: "true", actual: "${params.DeployImage}"
+        //     }
+        //     steps {
+        //         // sshagent(['ssh-hots-creds']) {
+        //         //     sh """
+        //         //         ssh -o StrictHostKeyChecking=no <user>@<stage-server> '''
+        //         //             aws ecr get-login-password --profile <ecr_user> --region us-east-1 | docker login --username AWS --password-stdin ${env.REGISTRY} && \
+        //         //             docker pull ${env.REGISTRY}:${env.BUILD_ID} && \
+        //         //             if [ \$(docker ps -qf "name=<your_docker_name>") ]; then docker stop \$(docker ps -qf "name=<your_docker_name>"); fi && \
+        //         //             docker run -d --name <your_docker_name>_${env.BUILD_ID} ${env.REGISTRY}:${env.BUILD_ID}
+        //         //         '''
+        //         //         """
+        //         // }
+        //         script {
+        //             echo "Deploing the image from docker hub"
 
-                    def localImage = "${params.Image_Name}:${params.Image_Tag}"
-                    def repositoryName = "alexeyparfimovich/${localImage}"
-                    echo "Image name: ${repositoryName}"
+        //             def localImage = "${params.Image_Name}:${params.Image_Tag}"
+        //             def repositoryName = "alexeyparfimovich/${localImage}"
+        //             echo "Image name: ${repositoryName}"
 
-                    sh "docker pull ${repositoryName} "
-                    sh "docker stop \$(docker ps -aq)"
-                    sh "docker run -p 8081:80 -d --name ${params.Image_Name}_${params.Image_Tag} ${repositoryName} "
-                }
-            }
-        }
+        //             sh "docker pull ${repositoryName} "
+        //             sh "docker stop \$(docker ps -aq)"
+        //             sh "docker run -p 8081:80 -d --name ${params.Image_Name}_${params.Image_Tag} ${repositoryName} "
+        //         }
+        //     }
+        // }
 
 
     //}
