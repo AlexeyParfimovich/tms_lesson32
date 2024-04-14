@@ -1,19 +1,17 @@
 // Jenkinsfile (Declarative Pipeline)
 // Global Variable goes here
 // Pipeline block
-node {
+pipeline {
     // Agent block
     agent any 
 //    {
 //        node any
 //    }
 
-    options {
-        buildDiscarder(logRotator(numToKeepStr: '3'))
-    }
+//    options {
+//    }
 
     environment {
-        DOCKERHUB_REGISTRY = 
         DOCKERHUB_CREDS = credentials('549bb496-266b-4f2f-baea-3a9f7abc3bce')
     }
 
@@ -23,11 +21,10 @@ node {
         string(name: "Image_Tag", defaultValue: 'latest', description: 'Docker image tag')
         
         booleanParam(name: "PushImage", defaultValue: false)
-        booleanParam(name: "DeployImage", defaultValue: false)
     }
 
     // Stage Block
-    //stages {
+    stages {
 
         stage("Build docker images") {
             steps {
@@ -57,17 +54,6 @@ node {
                 equals expected: "true", actual: "${params.PushImage}"
             }
             steps {
-                // sshagent(['ssh-hots-creds']) {
-                //     sh """
-                //         ssh -o StrictHostKeyChecking=no <user>@<stage-server> '''
-                //             aws ecr get-login-password --profile <ecr_user> --region us-east-1 | docker login --username AWS --password-stdin ${env.REGISTRY} && \
-                //             docker pull ${env.REGISTRY}:${env.BUILD_ID} && \
-                //             if [ \$(docker ps -qf "name=<your_docker_name>") ]; then docker stop \$(docker ps -qf "name=<your_docker_name>"); fi && \
-                //             docker run -d --name <your_docker_name>_${env.BUILD_ID} ${env.REGISTRY}:${env.BUILD_ID}
-                //         '''
-                //         """
-                // }
-                
                 script {
                     echo "Pushing the image to docker hub"
                     sh "ls -l"
@@ -101,46 +87,25 @@ node {
                 }
             }
         }
-
-        stage("Deploy image from Dockerhub") {
-            when {
-                equals expected: "true", actual: "${params.DeployImage}"
-            }
-            steps {
-                script {
-                    echo "Deploing the image from docker hub"
-
-                    def localImage = "${params.Image_Name}:${params.Image_Tag}"
-                    def repositoryName = "alexeyparfimovich/${localImage}"
-                    echo "Image name: ${repositoryName}"
-
-                    sh "docker pull ${repositoryName} "
-                    sh "docker stop $(docker ps -aq)"
-                    sh "docker run -p 8081:80 -d --name ${params.Image_Name}_${params.Image_Tag} ${repositoryName} "
-                }
-            }
-        }
-
-
-    //}
-
-    post {
-        always {
-            script {
-                echo "I am execute always"
-            }
-        }
-
-        success {
-            script {
-                echo "I am execute on success"
-            }
-        }
-
-        failure {
-            script {
-                echo "I am execute on failure"
-            }
-        }
     }
+}
+
+post {
+   always {
+      script {
+         echo "I am execute always"
+      }
+   }
+
+   success {
+      script {
+         echo "I am execute on success"
+      }
+   }
+
+   failure {
+      script {
+         echo "I am execute on failure"
+      }
+   }
 }
