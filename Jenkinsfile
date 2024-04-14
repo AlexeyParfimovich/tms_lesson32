@@ -115,7 +115,7 @@ node {
                     echo "Image name: ${repositoryName}"
 
                     sh "docker pull ${repositoryName} "
-                    sh "docker stop $(docker ps -aq)"
+                    sh "docker stop \$(docker ps -aq)"
                     sh "docker run -p 8081:80 -d --name ${params.Image_Name}_${params.Image_Tag} ${repositoryName} "
                 }
             }
