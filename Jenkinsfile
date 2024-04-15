@@ -52,7 +52,7 @@ pipeline {
             steps {
                 echo "Testing docker images"
                 script {
-                    sh "docker run -p 8081:80 -d --name ${params.Image_Name}_test ${params.Image_Name} "
+                    sh "docker run -p 8081:80 -d --name ${params.Image_Name}_test ${params.Image_Name}:${params.Image_Tag} "
 
                     final String url = "http://localhost:8081"
                     final def (String response, int code) =
