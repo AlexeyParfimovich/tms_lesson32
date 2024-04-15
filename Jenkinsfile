@@ -3,17 +3,17 @@
 // Pipeline block
 pipeline {
     // Agent block
-    agent any 
-//    {
-//        node any
-//    }
+    agent  
+    {
+        label 'VMJenkinsBuildHost1'
+    }
 
     options {
         buildDiscarder(logRotator(numToKeepStr: '3'))
     }
 
     environment {
-        DOCKERHUB_CREDS = credentials('549bb496-266b-4f2f-baea-3a9f7abc3bce')
+        DOCKERHUB_CREDS = credentials('DockerHub-creds')
     }
 
     parameters {
@@ -91,6 +91,13 @@ pipeline {
         }
 
         stage("Deploy image from Dockerhub") {
+            agent  
+            {
+                label 'VMJenkinsDeployHost1'
+            }
+            options {
+                buildDiscarder(logRotator(numToKeepStr: '3'))
+            }
             when {
                 equals expected: "true", actual: "${params.DeployImage}"
             }
