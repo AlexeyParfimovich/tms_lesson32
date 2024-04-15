@@ -56,10 +56,13 @@ pipeline {
 
                     final String url = "http://localhost:8081"
                     final def (String response, String code) =
-                            sh(script: "curl -s -w '\\n%{response_code}' $url", returnStdout: true)
+                            sh(script: "curl -s -w '\n%{response_code}' $url", returnStdout: true)
                             .trim()
                             .tokenize("\n")
 
+                    echo '$response'
+                    echo '$code'
+                    
                     if (code == '200') {
                         //def matcher = regex(‘^([^ ]+) ‘)
                         //def match = matcher.find(response)
