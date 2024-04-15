@@ -60,9 +60,9 @@ pipeline {
                             .trim()
                             .tokenize("\n")
 
-                    echo '$response'
-                    echo '$code'
-                    
+                    echo response
+                    echo code
+
                     if (code == '200') {
                         //def matcher = regex(‘^([^ ]+) ‘)
                         //def match = matcher.find(response)
