@@ -55,12 +55,12 @@ pipeline {
                     sh "docker run -p 8081:80 -d --name ${params.Image_Name}_test ${params.Image_Name}:${params.Image_Tag} "
 
                     final String url = "http://localhost:8081"
-                    final def (String response, int code) =
+                    final def (String response, String code) =
                             sh(script: "curl -s -w '\\n%{response_code}' $url", returnStdout: true)
                             .trim()
                             .tokenize("\n")
 
-                    if (code == 200) {
+                    if (code == '200') {
                         //def matcher = regex(‘^([^ ]+) ‘)
                         //def match = matcher.find(response)
                         //echo “${match.group(1)}”
