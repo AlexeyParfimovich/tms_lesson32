@@ -56,9 +56,9 @@ pipeline {
 
                     final String url = "http://localhost:8081"
                     final def (String response, String code) =
-                            sh(script: "curl -s -w '\n%{response_code}' $url", returnStdout: true)
+                            sh(script: "curl -s -w '%{response_code}' $url", returnStdout: true)
                             .trim()
-                            .tokenize("\n")
+                            .tokenize("</html>")
 
                     echo response
                     echo code
