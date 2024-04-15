@@ -54,24 +54,13 @@ pipeline {
                 script {
                     sh "docker run -p 8081:80 -d --name ${params.Image_Name}_test ${params.Image_Name}:${params.Image_Tag} "
 
-                    final String url = "http://localhost:8081"
-                    final def (String response, String code) =
-                            sh(script: "curl -s -w '%{response_code}' $url", returnStdout: true)
-                            .trim()
-                            .tokenize("</html>")
-
-                    echo response
-                    echo code
+                    def url = "http://localhost:8081"
+                    def code = sh(script: "curl -o /dev/null -s -w '%{response_code}' $url", returnStdout: true).trim()
 
                     if (code == '200') {
-                        //def matcher = regex(‘^([^ ]+) ‘)
-                        //def match = matcher.find(response)
-                        //echo “${match.group(1)}”
-
-                        echo response
+                        echo "Webapp test passed!"
                     }
                     else {
-                        echo code
                         throw new Exception("Stop CI pipeline due to container test fails: Application returns response code $code!")
                     }
                 }
