@@ -1,11 +1,11 @@
 // Jenkinsfile (Declarative Pipeline)
-
 pipeline {
     agent  
     {
         label 'VMJenkinsBuildHost1'
     }
 
+    // buildDiscarder option not applicable to the agent
     // options {
     //     buildDiscarder(logRotator(numToKeepStr: '3'))
     // }
@@ -24,7 +24,6 @@ pipeline {
         booleanParam(name: "DeployImage", defaultValue: false)
     }
 
-    // Stage Block
     stages {
 
         stage("Build docker images") {
@@ -49,6 +48,15 @@ pipeline {
             }
         }
 
+        // stage("Test docker images") {
+        //     steps {
+        //         echo "Testing docker images"
+        //         script {
+        //             sh "docker run -p 8080:80 -d --name ${params.Image_Name}_test ${params.Image_Name} "
+        //         }
+        //     }
+        // }
+
         stage("Push image to Dockerhub") {
             when {
                 equals expected: "true", actual: "${params.PushImage}"
@@ -57,32 +65,12 @@ pipeline {
                 script {
                     echo "Pushing the image to docker hub"
 
-                    def localImage = "${params.Image_Name}:${params.Image_Tag}"
-                    def repositoryName = "alexeyparfimovich/${localImage}"
-                    echo "Image name: ${repositoryName}"
+                    def imageName = "${params.Image_Name}:${params.Image_Tag}"
+                    def repositoryName = "${DOCKERHUB_CREDS_USR}/${imageName}"
 
                     sh "docker login -u ${DOCKERHUB_CREDS_USR} -p ${DOCKERHUB_CREDS_PSW} "
-                    sh "docker tag ${localImage} ${repositoryName} "
+                    sh "docker tag ${imageName} ${repositoryName} "
                     sh "docker push ${repositoryName} "
-
-                    /*
-                    def output = sh(script: "ls -l", returnStdout: true)
-                    echo "ls: ${output}"
-
-                    def localImage = "${params.Image_Name}:${params.Image_Tag}"
-                    def repositoryName = "alexeyparfimovich/${localImage}"
-                    echo "Image name: ${repositoryName}"
-
-                    output = sh(script: "docker tag ${localImage} ${repositoryName} ", returnStdout: true)
-                    echo "Docker tag: ${output}"
-
-                    def status = sh(returnStatus: true, script: "docker push ${repositoryName} ")
-                    if (status != 0) {
-                        echo "Error: Command exited with status ${status}"
-                    } else {
-                        echo "Command executed successfully"
-                    }
-                    */
                 }
             }
         }
@@ -92,6 +80,7 @@ pipeline {
             {
                 label 'VMJenkinsDeployHost1'
             }
+            // buildDiscarder option not applicable to the agent
             // options {
             //     buildDiscarder(logRotator(numToKeepStr: '3'))
             // }
@@ -102,21 +91,16 @@ pipeline {
                 script {
                     echo "Deploing the image from docker hub"
 
-                    def localImageName = "${params.Image_Name}:${params.Image_Tag}"
-                    def repositoryName = "alexeyparfimovich/${localImageName}"
+                    def repositoryName = "${DOCKERHUB_CREDS_USR}/${params.Image_Name}:${params.Image_Tag}"
                     sh "docker pull ${repositoryName} "
 
-                    def containerName = "${params.Image_Name}_${params.Image_Tag}"
-
                     sh """
-                        if [ \$(docker ps -qf "name=${containerName}") ]; then \
-                            docker stop \$(docker ps -qf "name=${containerName}"); \
-                            docker rm \$(docker container ls -aq)
+                        if [ \$(docker ps -qf "name=${${params.Image_Name}}") ]; then \
+                            docker stop \$(docker ps -qf "name=${params.Image_Name}"); \
+                            docker rm \$(docker ps -qaf "name=${params.Image_Name}"); \
                         fi
                     """
-
-                    //sh "docker ps -aq | xargs docker stop "
-                    sh "docker run -p 8081:80 -d --name ${containerName} ${repositoryName} "
+                    sh "docker run -p 8080:80 -d --name ${params.Image_Name}_${params.Image_Tag} ${repositoryName} "
                 }
             }
         }
@@ -125,19 +109,19 @@ pipeline {
     post {
         always {
             script {
-                echo "I am execute always"
+                echo "Cleaning has been performed after the pipeline operation."
             }
         }
 
         success {
             script {
-                echo "I am execute on success"
+                echo "The pipeline operation has been completed successfully."
             }
         }
 
         failure {
             script {
-                echo "I am execute on failure"
+                echo "The pipeline operation is completed with errors!!!"
             }
         }
     }
