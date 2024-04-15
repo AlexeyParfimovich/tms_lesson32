@@ -95,7 +95,7 @@ pipeline {
                     sh "docker pull ${repositoryName} "
 
                     sh """
-                        if [ \$(docker ps -qf "name=${${params.Image_Name}}") ]; then \
+                        if [ \$(docker ps -qf "name=${params.Image_Name}") ]; then \
                             docker stop \$(docker ps -qf "name=${params.Image_Name}"); \
                             docker rm \$(docker ps -qaf "name=${params.Image_Name}"); \
                         fi
