@@ -16,17 +16,17 @@ pipeline {
     }
 
     parameters {
-        string(name: "Branch_Name", defaultValue: 'main', description: 'the Git branch, contains the jenkinsfile code')
-        string(name: "Image_Name", defaultValue: 'tms_calc', description: 'the name of the Docker image to be build')
-        string(name: "Image_Tag", defaultValue: 'latest', description: 'Docker image tag')
+        string(name: "Branch_Name", defaultValue: 'main', trim: true, description: 'the Git branch, contains the jenkinsfile code')
+        string(name: "Image_Name", defaultValue: 'tms_calc', trim: true, description: 'the name of the Docker image to be build')
+        string(name: "Image_Tag", defaultValue: 'latest', trim: true, description: 'Docker image tag')
         
-        booleanParam(name: "PushImage", defaultValue: false)
+        booleanParam(name: "PushImage", defaultValue: true)
         booleanParam(name: "DeployImage", defaultValue: false)
     }
 
     stages {
 
-        stage("Build docker images") {
+        stage("Build docker image") {
             steps {
                 echo "Bulding docker images"
                 dir(path: './Source') {
@@ -48,14 +48,31 @@ pipeline {
             }
         }
 
-        // stage("Test docker images") {
-        //     steps {
-        //         echo "Testing docker images"
-        //         script {
-        //             sh "docker run -p 8080:80 -d --name ${params.Image_Name}_test ${params.Image_Name} "
-        //         }
-        //     }
-        // }
+        stage("Test docker image") {
+            steps {
+                echo "Testing docker images"
+                script {
+                    sh "docker run -p 8081:80 -d --name ${params.Image_Name}_test ${params.Image_Name} "
+
+                    final String url = "http://localhost:8081"
+                    final def (String response, int code) =
+                            sh(script: "curl -s -w '\\n%{response_code}' $url", returnStdout: true)
+                            .trim()
+                            .tokenize("\n")
+
+                    if (code == 200) {
+                        //def matcher = regex(‘^([^ ]+) ‘)
+                        //def match = matcher.find(response)
+                        //echo “${match.group(1)}”
+
+                        echo response
+                    }
+                    else {
+                        throw new Exception("Stop CI pipeline due to container test fails!")
+                    }
+                }
+            }
+        }
 
         stage("Push image to Dockerhub") {
             when {
@@ -109,7 +126,13 @@ pipeline {
     post {
         always {
             script {
-                echo "Cleaning has been performed after the pipeline operation."
+                echo "Clean docker artifacts after the pipeline operation."
+                sh """
+                    if [ \$(docker ps -qf "name=${params.Image_Name}") ]; then \
+                    docker stop \$(docker ps -qf "name=${params.Image_Name}"); \
+                    docker rm \$(docker ps -qaf "name=${params.Image_Name}"); \
+                    fi
+                """
             }
         }
 
@@ -121,7 +144,7 @@ pipeline {
 
         failure {
             script {
-                echo "The pipeline operation is completed with errors!!!"
+                echo "The pipeline operation is completed with errors."
             }
         }
     }
