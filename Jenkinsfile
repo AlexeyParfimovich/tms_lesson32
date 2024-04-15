@@ -1,8 +1,6 @@
 // Jenkinsfile (Declarative Pipeline)
-// Global Variable goes here
-// Pipeline block
+
 pipeline {
-    // Agent block
     agent  
     {
         label 'VMJenkinsBuildHost1'
@@ -13,6 +11,7 @@ pipeline {
     // }
 
     environment {
+        GITHUB_CREDS = credentials('GitHub-creds')
         DOCKERHUB_CREDS = credentials('DockerHub-creds')
     }
 
@@ -33,7 +32,6 @@ pipeline {
                 echo "Bulding docker images"
                 dir(path: './Source') {
                     script {
-                        sh "ls -l"
                         sh "docker build -t ${params.Image_Name}:${params.Image_Tag} . "
                         /*
                         def output = sh(script: "ls -l", returnStdout: true)
@@ -58,7 +56,6 @@ pipeline {
             steps {               
                 script {
                     echo "Pushing the image to docker hub"
-                    sh "ls -l"
 
                     def localImage = "${params.Image_Name}:${params.Image_Tag}"
                     def repositoryName = "alexeyparfimovich/${localImage}"
@@ -102,39 +99,27 @@ pipeline {
                 equals expected: "true", actual: "${params.DeployImage}"
             }
             steps {
-                // sshagent(['ssh-hots-creds']) {
-                //     sh """
-                //         ssh -o StrictHostKeyChecking=no <user>@<stage-server> '''
-                //             aws ecr get-login-password --profile <ecr_user> --region us-east-1 | docker login --username AWS --password-stdin ${env.REGISTRY} && \
-                //             docker pull ${env.REGISTRY}:${env.BUILD_ID} && \
-                //             if [ \$(docker ps -qf "name=<your_docker_name>") ]; then docker stop \$(docker ps -qf "name=<your_docker_name>"); fi && \
-                //             docker run -d --name <your_docker_name>_${env.BUILD_ID} ${env.REGISTRY}:${env.BUILD_ID}
-                //         '''
-                //         """
-                // }
-
                 script {
                     echo "Deploing the image from docker hub"
 
-                    def localImage = "${params.Image_Name}:${params.Image_Tag}"
-                    def repositoryName = "alexeyparfimovich/${localImage}"
-                    echo "Image name: ${repositoryName}"
-
+                    def localImageName = "${params.Image_Name}:${params.Image_Tag}"
+                    def repositoryName = "alexeyparfimovich/${localImageName}"
                     sh "docker pull ${repositoryName} "
 
+                    def containerName = "${params.Image_Name}_${params.Image_Tag}"
+
                     sh """
-                        docker stop container \$(docker container ls -aq) && \
-                        docker rm container \$(docker container ls -aq)
+                        if [ \$(docker ps -qf "name=${containerName}") ]; then \
+                            docker stop \$(docker ps -qf "name=${containerName}"); \
+                            docker rm \$(docker container ls -aq)
+                        fi
                     """
-                    //sh 'docker rm container $(docker container ls -aq)'
 
                     //sh "docker ps -aq | xargs docker stop "
-                    sh "docker run -p 8081:80 -d --name ${params.Image_Name}_${params.Image_Tag} ${repositoryName} "
+                    sh "docker run -p 8081:80 -d --name ${containerName} ${repositoryName} "
                 }
             }
         }
-
-
     }
 
     post {
