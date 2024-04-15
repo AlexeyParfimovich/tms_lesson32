@@ -8,9 +8,9 @@ pipeline {
         label 'VMJenkinsBuildHost1'
     }
 
-    options {
-        buildDiscarder(logRotator(numToKeepStr: '3'))
-    }
+    // options {
+    //     buildDiscarder(logRotator(numToKeepStr: '3'))
+    // }
 
     environment {
         DOCKERHUB_CREDS = credentials('DockerHub-creds')
@@ -95,9 +95,9 @@ pipeline {
             {
                 label 'VMJenkinsDeployHost1'
             }
-            options {
-                buildDiscarder(logRotator(numToKeepStr: '3'))
-            }
+            // options {
+            //     buildDiscarder(logRotator(numToKeepStr: '3'))
+            // }
             when {
                 equals expected: "true", actual: "${params.DeployImage}"
             }
