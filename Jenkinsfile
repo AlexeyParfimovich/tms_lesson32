@@ -68,7 +68,8 @@ pipeline {
                         echo response
                     }
                     else {
-                        throw new Exception("Stop CI pipeline due to container test fails!")
+                        echo code
+                        throw new Exception("Stop CI pipeline due to container test fails: Application returns response code $code!")
                     }
                 }
             }
