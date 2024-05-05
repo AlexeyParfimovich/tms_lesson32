@@ -112,12 +112,12 @@ pipeline {
                             docker rm \$(docker ps -qaf "name=${params.Image_Name}"); \
                         fi
                     """
-                    sh "docker run -p 8080:80 -d --name ${params.Image_Name}_${params.Image_Tag} ${repositoryName} "
+                    sh "docker run -p 80:80 -d --name ${params.Image_Name}_${params.Image_Tag} ${repositoryName} "
                 }
                 script {
                     echo "Smoke testing of the deployed application"
 
-                    def url = "http://localhost:8080"
+                    def url = "http://localhost:80"
                     def code = sh(script: "curl -o /dev/null -s -w '%{response_code}' $url", returnStdout: true).trim()
 
                     if (code == '200') {
