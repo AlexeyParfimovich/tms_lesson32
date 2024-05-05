@@ -52,9 +52,9 @@ pipeline {
             steps {
                 echo "Testing docker images"
                 script {
-                    sh "docker run -p 8081:80 -d --name ${params.Image_Name}_test ${params.Image_Name}:${params.Image_Tag} "
+                    sh "docker run -p 8080:80 -d --name ${params.Image_Name}_test ${params.Image_Name}:${params.Image_Tag} "
 
-                    def url = "http://localhost:8081"
+                    def url = "http://localhost:8080"
                     def code = sh(script: "curl -o /dev/null -s -w '%{response_code}' $url", returnStdout: true).trim()
 
                     if (code == '200') {
@@ -102,6 +102,8 @@ pipeline {
                     echo "Deploing the image from docker hub"
 
                     def repositoryName = "${DOCKERHUB_CREDS_USR}/${params.Image_Name}:${params.Image_Tag}"
+
+                    sh "docker login -u ${DOCKERHUB_CREDS_USR} -p ${DOCKERHUB_CREDS_PSW} "
                     sh "docker pull ${repositoryName} "
 
                     sh """
@@ -111,6 +113,19 @@ pipeline {
                         fi
                     """
                     sh "docker run -p 8080:80 -d --name ${params.Image_Name}_${params.Image_Tag} ${repositoryName} "
+                }
+                script {
+                    echo "Smoke testing of the deployed application"
+
+                    def url = "http://localhost:8080"
+                    def code = sh(script: "curl -o /dev/null -s -w '%{response_code}' $url", returnStdout: true).trim()
+
+                    if (code == '200') {
+                        echo "Webapp was deployed and started successfully!"
+                    }
+                    else {
+                        throw new Exception("Stop CD pipeline due to application smoke test fails: Application returns response code $code!")
+                    }
                 }
             }
         }
