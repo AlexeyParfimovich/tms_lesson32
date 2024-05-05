@@ -88,7 +88,7 @@ pipeline {
         stage("Deploy image from Dockerhub") {
             agent  
             {
-                label 'ECSHost1'
+                label 'VMDeployHost1'
             }
             // buildDiscarder option not applicable to the agent
             // options {
@@ -103,7 +103,7 @@ pipeline {
 
                     def repositoryName = "${DOCKERHUB_CREDS_USR}/${params.Image_Name}:${params.Image_Tag}"
 
-                    //sh "docker login -u ${DOCKERHUB_CREDS_USR} -p ${DOCKERHUB_CREDS_PSW} "
+                    sh "docker login -u ${DOCKERHUB_CREDS_USR} -p ${DOCKERHUB_CREDS_PSW} "
                     sh "docker pull ${repositoryName} "
 
                     sh """
