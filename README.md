@@ -2,4 +2,3 @@
 
 ### Repository contents
 - .\Source - directory with the source files of the project
-- .\Artifacts - directory with assembly artifacts (resulting docker image)

@@ -2,7 +2,7 @@
 pipeline {
     agent  
     {
-        label 'VMJenkinsBuildHost1'
+        label 'VMBuildHost1'
     }
 
     // buildDiscarder option not applicable to the agent
@@ -88,7 +88,7 @@ pipeline {
         stage("Deploy image from Dockerhub") {
             agent  
             {
-                label 'VMJenkinsDeployHost1'
+                label 'VMDeployHost1'
             }
             // buildDiscarder option not applicable to the agent
             // options {
